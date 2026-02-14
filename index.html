@@ -1,16 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- ============================================
+         Random Number Generator
+         Version: 1.0.0
+         Author: PhoenixAssitantBot
+         License: MIT
+         ============================================ -->
+    
+    <!-- Character encoding and viewport -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Number Generator</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>Random Number Generator | 0-10</title>
+    <meta name="description" content="A simple, beautiful web app that generates random numbers between 0 and 10. Click the button and get your number instantly.">
+    <meta name="keywords" content="random number, generator, 0-10, random">
+    <meta name="author" content="PhoenixAssitantBot">
+    
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Random Number Generator">
+    <meta property="og:description" content="Generate random numbers 0-10 with one click.">
+    <meta property="og:url" content="https://random-number-app-pi.vercel.app">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Random Number Generator">
+    <meta name="twitter:description" content="Generate random numbers 0-10 with one click.">
+    
+    <!-- Favicon (inline SVG as data URI for simplicity) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
+    
+    <!-- Theme Color for mobile browsers -->
+    <meta name="theme-color" content="#667eea">
+    
     <style>
-        * {
+        /* ============================================
+           CSS Reset & Base Styles
+           ============================================ */
+        *,
+        *::before,
+        *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         
+        /* ============================================
+           Body & Layout
+           - Flexbox centering for full viewport
+           - System font stack for native feel
+           - Gradient background
+           ============================================ */
         body {
             min-height: 100vh;
             display: flex;
@@ -22,11 +64,17 @@
             color: white;
         }
         
+        /* ============================================
+           Main Container
+           ============================================ */
         .container {
             text-align: center;
             padding: 2rem;
         }
         
+        /* ============================================
+           Typography
+           ============================================ */
         h1 {
             font-size: 1.5rem;
             font-weight: 300;
@@ -34,26 +82,41 @@
             opacity: 0.9;
         }
         
+        /* ============================================
+           Number Display
+           - Large, prominent number
+           - Smooth scale animation on generate
+           ============================================ */
         .number-display {
             font-size: 8rem;
             font-weight: 700;
             margin: 2rem 0;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             min-height: 10rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            /* Announce changes to screen readers */
+            aria-live: polite;
         }
         
         .number-display span {
             transition: transform 0.15s ease;
+            display: inline-block;
         }
         
+        /* Animation class - added via JS */
         .number-display.animate span {
             transform: scale(1.1);
         }
         
-        button {
+        /* ============================================
+           Generate Button
+           - Pill-shaped with shadow
+           - Hover lift effect
+           - Accessible focus state
+           ============================================ */
+        .generate-btn {
             background: white;
             color: #667eea;
             border: none;
@@ -62,25 +125,58 @@
             font-weight: 600;
             border-radius: 50px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
         
-        button:hover {
+        .generate-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
         }
         
-        button:active {
+        .generate-btn:active {
             transform: translateY(0);
         }
         
+        /* Accessible focus state - visible keyboard focus */
+        .generate-btn:focus {
+            outline: 3px solid white;
+            outline-offset: 3px;
+        }
+        
+        .generate-btn:focus:not(:focus-visible) {
+            outline: none;
+        }
+        
+        .generate-btn:focus-visible {
+            outline: 3px solid white;
+            outline-offset: 3px;
+        }
+        
+        /* ============================================
+           Accessibility: Reduced Motion
+           - Respects user's motion preferences
+           ============================================ */
+        @media (prefers-reduced-motion: reduce) {
+            .number-display span {
+                transition: none;
+            }
+            
+            .generate-btn {
+                transition: none;
+            }
+        }
+        
+        /* ============================================
+           Responsive: Mobile
+           ============================================ */
         @media (max-width: 480px) {
             .number-display {
                 font-size: 5rem;
+                min-height: 7rem;
             }
             
-            button {
+            .generate-btn {
                 padding: 0.875rem 2.5rem;
                 font-size: 1rem;
             }
@@ -88,20 +184,90 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <main class="container" role="main">
         <h1>Random Number Generator</h1>
-        <div class="number-display" id="display"><span>?</span></div>
-        <button onclick="generate()">Generate</button>
-    </div>
+        
+        <!-- Number display area -->
+        <!-- aria-live="polite" announces changes to screen readers -->
+        <!-- aria-atomic="true" reads the entire region on change -->
+        <div 
+            class="number-display" 
+            id="display" 
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+        >
+            <span>?</span>
+        </div>
+        
+        <!-- Generate button -->
+        <button 
+            type="button"
+            class="generate-btn" 
+            id="generateBtn"
+            aria-label="Generate a random number between 0 and 10"
+        >
+            Generate
+        </button>
+    </main>
     
     <script>
-        function generate() {
+        /**
+         * Random Number Generator
+         * =======================
+         * Generates a random integer between 0 and 10 (inclusive)
+         * and displays it with a subtle scale animation.
+         */
+        (function() {
+            'use strict';
+            
+            // Cache DOM references for performance
             const display = document.getElementById('display');
-            const number = Math.floor(Math.random() * 11); // 0-10 inclusive
-            display.innerHTML = '<span>' + number + '</span>';
-            display.classList.add('animate');
-            setTimeout(() => display.classList.remove('animate'), 150);
-        }
+            const generateBtn = document.getElementById('generateBtn');
+            
+            // Animation duration in milliseconds
+            const ANIMATION_DURATION = 150;
+            
+            // Min and max values (inclusive)
+            const MIN_VALUE = 0;
+            const MAX_VALUE = 10;
+            
+            /**
+             * Generates a random integer between min and max (inclusive)
+             * @param {number} min - Minimum value
+             * @param {number} max - Maximum value
+             * @returns {number} Random integer
+             */
+            function getRandomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+            
+            /**
+             * Updates the display with a new random number
+             * Triggers a scale animation for visual feedback
+             */
+            function generate() {
+                const number = getRandomInt(MIN_VALUE, MAX_VALUE);
+                
+                // Update display content
+                display.innerHTML = '<span>' + number + '</span>';
+                
+                // Trigger animation
+                display.classList.add('animate');
+                
+                // Remove animation class after duration
+                setTimeout(function() {
+                    display.classList.remove('animate');
+                }, ANIMATION_DURATION);
+            }
+            
+            // Attach event listener (better than inline onclick)
+            generateBtn.addEventListener('click', generate);
+            
+            // Also allow Enter/Space when button is focused (built-in for buttons)
+            // No additional code needed - buttons handle this natively
+            
+        })();
     </script>
 </body>
 </html>
